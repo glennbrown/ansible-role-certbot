@@ -1,4 +1,4 @@
-Certbot
+Ansible Role: Certbot with Cloudflare DNS Challenge
 =========
 
 Installs certbot via either pip, package manager or snap and uses Cloudflare DNS Challenge for wildcard cert generation
