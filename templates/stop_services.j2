@@ -5,10 +5,8 @@
 echo "stopping service {{ item }}"
 {% if ansible_service_mgr == 'systemd' %}
 systemctl stop {{ item }}
-{% elif ansible_service_mgr == 'upstart' %}
-initctl stop {{ item }}
-{% elif ansible_service_mgr == 'openrc' %}
-rc-service {{ item }} stop
+{% elif ansible_service_mgr == 'launchd' %}
+su - {{ homebrew_user }} -c "brew services stop {{ item }}"
 {% else %}
 service {{ item }} stop
 {% endif %}

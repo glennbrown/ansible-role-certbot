@@ -1,17 +1,15 @@
-Ansible Role: Certbot with Cloudflare DNS Challenge
-=========
+# Ansible Role: Certbot with Cloudflare DNS Challenge
 
-Installs certbot via either pip, package manager or snap and uses Cloudflare DNS Challenge for wildcard cert generation
+Installs certbot via either pip or snap and uses Cloudflare DNS Challenge for wildcard cert generation
 
-Requirements
-------------
+## Requirements
 
 - Cloudflare DNS Zone
 - Cloudflare API Token (preferred) or Cloudflare Global API Key [Certbot Cloudflare DNS Docs](https://certbot-dns-cloudflare.readthedocs.io/en/stable/)
 - Wildcard domain setup (for wildcard certs) [*.domain.com or *.subdomain.domain.com]
 
-Role Variables
---------------
+## Role Variables
+
 ***Define these variables in group_vars or host_vars***
 
 If you are using Global API Key
@@ -37,9 +35,9 @@ Certificates to generate which can include wildcards or not
           - example2.com
           - *.example2.com
       
-Method of how to install certbot, defaults to pip.
+Method of how to install certbot, defaults to snap.
 
-    certbot_install_method: snap
+    certbot_install_method: pip
 
 Enable certbot's HTTP Strict Transport Security (HSTS)
 
@@ -64,7 +62,6 @@ The create command which instructs the role to use DNS-01 Challenge. This is def
       {{ '--post-hook /etc/letsencrypt/renewal-hooks/post/start_services'
         if certbot_create_stop_services else '' }}
 
-Author Information
-------------------
+### Author Information
 
 This role was created by [glennbrown](http://github.com/glennbrown) and is based on [Jeff Geerlings](https://github.com/geerlingguy/ansible-role-certbot/tree/master) role and this role by [Michael Porter](https://github.com/michaelpporter/ansible-role-certbot-cloudflare)

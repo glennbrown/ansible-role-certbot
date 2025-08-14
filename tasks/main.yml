@@ -1,18 +1,24 @@
 ---
 
-- import_tasks: install-with-snap.yml
+- name: Install certbot using snap
+  become: true
+  import_tasks: install-with-snap.yml
   when: certbot_install_method == 'snap'
 
-- import_tasks: install-with-pip.yml
+- name: Install certbot using pip
+  become: true
+  import_tasks: install-with-pip.yml
   when: certbot_install_method == 'pip'
 
 - name: Create certbot folder
+  become: true
   file:
     path: /etc/letsencrypt
     state: directory
     mode: 0755
 
 - name: Create certbot live and archive folder
+  become: true
   file:
     path: "/etc/letsencrypt/{{ item }}"
     state: directory
@@ -21,7 +27,9 @@
     - live
     - archive
 
-- block:
+- name: Set Posix ACL for certbot on Linux
+  become: true
+  block:
     - name: Set default ACL for live and archive folders
       acl:
         path: "/etc/letsencrypt/{{ item }}"
@@ -44,8 +52,34 @@
       loop:
         - live
         - archive
-  
+  when: ansible_facts['os_family'] == "Debian"
+
+# MacOS does not support Posix ACL's so we have to resort to chmod and ls shell checks
+- name: Set ACL for certbot on MacOS
+  become: true
+  block:
+    - name: Check if ACL is already present
+      shell: >-
+        ls -led /etc/letencrypt/{{ item }} | 
+        grep -F "group:admin allow list,add_file,search,delete,add_subdirectory,delete_child,readattr,writeattr,readextattr,writeextattr"
+      register: acl_check
+      failed_when: false
+      changed_when: false
+      loop:
+        - live
+        - archive      
+    - name: Set ACL for live and archive folders
+      command: >-
+        chmod +a "group:admin allow read,write,execute,list,search,delete,add_file,add_subdirectory,delete_child,readattr,writeattr,readextattr,writeextattr"
+        /etc/letsencrypt/{{ item }}
+      when: acl_check.rc != 0
+      loop:
+        - live
+        - archive
+  when: ansible_facts['os_family'] == "Darwin"
+
 - name: Copy certbot cloudflare credential config
+  become: true
   template:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
@@ -56,14 +90,26 @@
     - { src: 'cloudflare.ini.j2', dest: '/etc/letsencrypt/cloudflare.ini' }
 
 - include_tasks: create-cert.yml
+  become: true
   loop: "{{ certbot_certs }}"
   when:
     - certbot_create_if_missing
   loop_control:
     loop_var: cert_item
 
-# Debian Package and Snap package use sytemd timers by default for renewal.
+# Snap package uses sytemd timers by default for renewal.
+# MacOS does have cron but launchd is the "proper" way to do it.
+# TODO: switch to systemd timers for pip installs
 - import_tasks: renew-cron.yml
+  become: true
   when: 
     - certbot_auto_renew
     - certbot_install_method == 'pip'
+    - ansible_facts['os_family'] == "Debian"
+
+- import_tasks: renew-launchd.yml
+  become: true
+  when: 
+    - certbot_auto_renew
+    - certbot_install_method == 'pip'
+    - ansible_facts['os_family'] == "Darwin"

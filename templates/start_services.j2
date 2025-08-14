@@ -5,10 +5,8 @@
 echo "starting service {{ item }}"
 {% if ansible_service_mgr == 'systemd' %}
 systemctl start {{ item }}
-{% elif ansible_service_mgr == 'upstart' %}
-initctl start {{ item }}
-{% elif ansible_service_mgr == 'openrc' %}
-rc-service {{ item }} start
+{% elif ansible_service_mgr == 'launchd' %
+su - {{ homebrew_user }} -c "brew services start {{ item }}"
 {% else %}
 service {{ item }} start
 {% endif %}

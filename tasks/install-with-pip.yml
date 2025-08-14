@@ -1,6 +1,6 @@
 ---
 
-- name: Install pip dependencies
+- name: Install pip dependencies for Debian
   package:
     name: "{{ item }}"
     state: present
@@ -8,6 +8,26 @@
     - python3-venv
     - python3-pip
     - virtualenv
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: Install pip dependencies for MacOS
+  homebrew:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - python3
+    - virtualenv
+  when: ansible_facts['os_family'] == "Darwin"
+
+- name: Set python3 path for virtualenv on Debian
+  set_fact:
+    certbot_python3_path: '/usr/bin/python3'
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: Set python3 path for virtualenv on MacOS
+  set_fact:
+    certbot_python3_path: '/opt/homebrew/bin/python3'
+  when: ansible_facts['os_family'] == "Darwin"
 
 - name: Install certbot via pip
   pip:
@@ -15,6 +35,7 @@
       - certbot
       - certbot-dns-cloudflare
     virtualenv: "{{ certbot_dir }}"
+    virtualenv_python: "{{ certbot_python3_path }}"
     state: present
 
 - name: Symlink certbot into place.
