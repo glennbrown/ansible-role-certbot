@@ -1,0 +1,13 @@
+---
+- name: Copy launchd plist for certbot renewal
+  template:
+    src: org.eff.certbot.renew.plist.j2
+    dest: /Library/LaunchDaemons/org.eff.certbot.renew.plist
+    owner: root
+    group: wheel
+    mode: '0644'
+
+- name: Add launchd job for certbot renewal
+  launchd:
+    name: org.eff.certbot.renew
+    state: reloaded
