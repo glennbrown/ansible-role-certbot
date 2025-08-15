@@ -64,15 +64,15 @@
       register: acl_check
       failed_when: false
       changed_when: false
-      
+      loop:
+        - live
+        - archive
     - name: Set ACL for live and archive folders
       command: >-
         chmod +a "group:admin allow read,write,execute,list,search,delete,add_file,add_subdirectory,delete_child,readattr,writeattr,readextattr,writeextattr"
-        /etc/letsencrypt/{{ item }}
-      when: acl_check.rc != 0
-  loop:
-    - live
-    - archive
+        /etc/letsencrypt/{{ item.item }}
+      loop: "{{ acl_check.results }}"
+      when: item.rc != 0
   when: ansible_facts['os_family'] == "Darwin"
 
 - name: Copy certbot cloudflare credential config
