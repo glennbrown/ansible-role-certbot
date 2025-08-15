@@ -37,8 +37,8 @@
       - certbot-dns-cloudflare
     virtualenv: "{{ certbot_dir }}"
     virtualenv_python: "{{ certbot_python3_path }}"
-    become: true
     state: present
+  become: true
 
 - name: Symlink certbot into place.
   file:
