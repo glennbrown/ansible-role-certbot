@@ -80,8 +80,6 @@
   template:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
-    owner: root
-    group: root
     mode: 0600
   loop:
     - { src: 'cloudflare.ini.j2', dest: '/etc/letsencrypt/cloudflare.ini' }

@@ -9,8 +9,6 @@
     path: /etc/letsencrypt/renewal-hooks/{{ item }}
     state: directory
     mode: 0755
-    owner: root
-    group: root
   loop:
     - pre
     - post
@@ -19,8 +17,6 @@
   template:
     src: stop_services.j2
     dest: /etc/letsencrypt/renewal-hooks/pre/stop_services
-    owner: root
-    group: root
     mode: 0750
   when:
     - certbot_create_stop_services is defined
@@ -30,8 +26,6 @@
   template:
     src: start_services.j2
     dest: /etc/letsencrypt/renewal-hooks/post/start_services
-    owner: root
-    group: root
     mode: 0750
   when:
     - certbot_create_stop_services is defined
