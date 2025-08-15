@@ -59,7 +59,7 @@
   block:
     - name: Check if ACL is already present
       shell: >-
-        ls -led /etc/letencrypt/{{ item }} | 
+        ls -led /etc/letsencrypt/{{ item }} | 
         grep -F "group:admin allow list,add_file,search,delete,add_subdirectory,delete_child,readattr,writeattr,readextattr,writeextattr"
       register: acl_check
       failed_when: false
