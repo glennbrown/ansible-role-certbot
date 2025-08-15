@@ -60,7 +60,7 @@
     - name: Check if ACL is already present
       shell: >-
         ls -led /etc/letsencrypt/{{ item }} | 
-        grep -F "group:admin allow list,add_file,search,delete,add_subdirectory,delete_child,readattr,writeattr,readextattr,writeextattr"
+        grep -F "group:admin allow list,add_file,search,delete,add_subdirectory,delete_child,readattr,writeattr,readextattr,writeextattr,readsecurity,writesecurity,chown,file_inherit,directory_inherit"
       register: acl_check
       failed_when: false
       changed_when: false
@@ -69,7 +69,7 @@
         - archive
     - name: Set ACL for live and archive folders
       command: >-
-        chmod +a "group:admin allow read,write,execute,list,search,delete,add_file,add_subdirectory,delete_child,readattr,writeattr,readextattr,writeextattr"
+        chmod +a "group:admin allow directory_inherit,file_inherit,list,add_file,add_subdirectory,search,delete,delete_child,read,write,append,execute,readattr,writeattr,readextattr,writeextattr,readsecurity,writesecurity,chown"
         /etc/letsencrypt/{{ item.item }}
       loop: "{{ acl_check.results }}"
       when: item.rc != 0
