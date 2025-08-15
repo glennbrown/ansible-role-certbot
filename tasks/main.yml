@@ -90,7 +90,8 @@
     - { src: 'cloudflare.ini.j2', dest: '/etc/letsencrypt/cloudflare.ini' }
 
 - include_tasks: create-cert.yml
-  become: true
+  vars:
+    ansible_become: true
   loop: "{{ certbot_certs }}"
   when:
     - certbot_create_if_missing
@@ -101,7 +102,8 @@
 # MacOS does have cron but launchd is the "proper" way to do it.
 # TODO: switch to systemd timers for pip installs
 - import_tasks: renew-cron.yml
-  become: true
+  vars:
+    ansible_become: true
   when: 
     - certbot_auto_renew
     - certbot_install_method == 'pip'
