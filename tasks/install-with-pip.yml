@@ -8,6 +8,7 @@
     - python3-venv
     - python3-pip
     - virtualenv
+  become: true
   when: ansible_os_family == 'Debian'
 
 - name: Install pip dependencies for MacOS
@@ -36,6 +37,7 @@
       - certbot-dns-cloudflare
     virtualenv: "{{ certbot_dir }}"
     virtualenv_python: "{{ certbot_python3_path }}"
+    become: true
     state: present
 
 - name: Symlink certbot into place.
@@ -43,6 +45,7 @@
     src: "{{ certbot_dir }}/bin/certbot"
     dest: /usr/local/bin/certbot
     state: link
+  become: true
   ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Set Certbot script variable.

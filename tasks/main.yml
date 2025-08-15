@@ -6,7 +6,6 @@
   when: certbot_install_method == 'snap'
 
 - name: Install certbot using pip
-  become: true
   import_tasks: install-with-pip.yml
   when: certbot_install_method == 'pip'
 
