@@ -27,7 +27,7 @@ certbot_create_command: >-
   {{ certbot_script }} certonly
   {{ '--hsts' if certbot_hsts else '' }}
   {{ '--test-cert' if certbot_testmode else '' }}
-  --dns-cloudflare --dns-cloudflare-credentials {{ certbot_config_dir }}/cloudflare.ini --dns-cloudflare-propagation-seconds 60
+  --dns-cloudflare --dns-cloudflare-credentials '{{ certbot_config_dir }}/cloudflare.ini' --dns-cloudflare-propagation-seconds 60
   --noninteractive --agree-tos
   --email {{ cert_item.email | default(certbot_admin_email) }}
   -d {{ cert_item.domains | join(',') }}
