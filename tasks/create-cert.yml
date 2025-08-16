@@ -35,7 +35,6 @@
     - certbot_create_stop_services
 
 - name: Generate new certificate if one doesn't exist.
-  command: /usr/bin/true   # dummy, replaced by argv
-  args:
+  command:
     argv: "{{ certbot_create_command }}"
   when: not letsencrypt_cert.stat.exists
