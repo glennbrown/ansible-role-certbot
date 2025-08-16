@@ -1,0 +1,8 @@
+---
+certbot_python3_binary: '/opt/homebrew/bin/python3'
+certbot_group: admin
+homebrew_prefix: "{{ (ansible_machine == 'arm64') | ternary('/opt/homebrew', '/usr/local') }}"
+certbot_config_dir: "{{ homebrew_prefix }}/etc/letsencrypt"
+certbot_work_dir: "{{ homebrew_prefix }}/var/lib/letsencrypt"
+certbot_log_dir: "{{ homebrew_prefix }}/var/log/letsencrypt"  
+certbot_cli_conf_file: "{{ ansible_env.HOME }}/.config/letsencrypt/cli.ini"

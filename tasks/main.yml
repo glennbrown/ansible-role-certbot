@@ -1,7 +1,8 @@
 ---
+- name: Load os-specific variables
+  include_vars: "{{ ansible_os_family }}.yml"
 
 - name: Install certbot using snap
-  become: true
   import_tasks: install-with-snap.yml
   when: certbot_install_method == 'snap'
 
@@ -9,29 +10,21 @@
   import_tasks: install-with-pip.yml
   when: certbot_install_method == 'pip'
 
-- name: Create certbot folder
-  become: true
+- name: Create certbot folders
   file:
-    path: /etc/letsencrypt
+    path: "{{ certbot_config_dir }}/{{ item }}"
     state: directory
-    mode: 0755
-
-- name: Create certbot live and archive folder
-  become: true
-  file:
-    path: "/etc/letsencrypt/{{ item }}"
-    state: directory
+    group: "{{ certbot_group }}"
     mode: 0755
   loop:
     - live
     - archive
 
 - name: Set Posix ACL for certbot on Linux
-  become: true
   block:
     - name: Set default ACL for live and archive folders
       acl:
-        path: "/etc/letsencrypt/{{ item }}"
+        path: "{{ certbot_config_dir }}/{{ item }}"
         entity: users
         etype: group
         permissions: rwx
@@ -42,7 +35,7 @@
         - archive
     - name: Set ACL for existing content
       acl:
-        path: "/etc/letsencrypt/{{ item }}"
+        path: "{{ certbot_config_dir }}/{{ item }}"
         entity: users
         etype: group
         permissions: rwx
@@ -51,42 +44,23 @@
       loop:
         - live
         - archive
-  when: ansible_facts['os_family'] == "Debian"
+  when: ansible_os_family == 'Debian'
 
-# MacOS does not support Posix ACL's so we have to resort to chmod and ls shell checks
-- name: Set ACL for certbot on MacOS
-  become: true
-  block:
-    - name: Check if ACL is already present
-      shell: >-
-        ls -led /etc/letsencrypt/{{ item }} | 
-        grep -F "group:admin allow list,add_file,search,delete,add_subdirectory,delete_child,readattr,writeattr,readextattr,writeextattr,readsecurity,writesecurity,chown,file_inherit,directory_inherit"
-      register: acl_check
-      failed_when: false
-      changed_when: false
-      loop:
-        - live
-        - archive
-    - name: Set ACL for live and archive folders
-      command: >-
-        chmod +a "group:admin allow directory_inherit,file_inherit,list,add_file,add_subdirectory,search,delete,delete_child,read,write,append,execute,readattr,writeattr,readextattr,writeextattr,readsecurity,writesecurity,chown"
-        /etc/letsencrypt/{{ item.item }}
-      loop: "{{ acl_check.results }}"
-      when: item.rc != 0
-  when: ansible_facts['os_family'] == "Darwin"
+- name: Copy certbot cli.ini for MacOS
+  template:
+    src: cli.ini.j2
+    dest: "{{ certbot_cli_conf_file }}"
+    mode: 0644
+  when: ansible_os_family == 'Darwin'
 
 - name: Copy certbot cloudflare credential config
-  become: true
   template:
-    src: "{{ item.src }}"
-    dest: "{{ item.dest }}"
+    src: cloudflare.ini.j2
+    dest: "{{ certbot_config_dir }}/cloudflare.ini"
+    group: "{{ certbot_group }}"
     mode: 0600
-  loop:
-    - { src: 'cloudflare.ini.j2', dest: '/etc/letsencrypt/cloudflare.ini' }
-
+  
 - include_tasks: create-cert.yml
-  vars:
-    ansible_become: true
   loop: "{{ certbot_certs }}"
   when:
     - certbot_create_if_missing
@@ -97,16 +71,12 @@
 # MacOS does have cron but launchd is the "proper" way to do it.
 # TODO: switch to systemd timers for pip installs
 - import_tasks: renew-cron.yml
-  vars:
-    ansible_become: true
   when: 
     - certbot_auto_renew
     - certbot_install_method == 'pip'
-    - ansible_facts['os_family'] == "Debian"
+    - ansible_os_family == 'Debian'
 
 - import_tasks: renew-launchd.yml
-  become: true
   when: 
     - certbot_auto_renew
-    - certbot_install_method == 'pip'
-    - ansible_facts['os_family'] == "Darwin"
+    - ansible_os_family == 'Darwin'

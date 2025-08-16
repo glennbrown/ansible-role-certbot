@@ -1,0 +1,5 @@
+# MacOS makes running as root painful, so we run as our user account
+# Homebrew certbot does not dns challenge support yet, so will will use a VirtualEnv
+config-dir={{ certbot_config_dir }}
+work-dir={{ certbot_work_dir }}
+logs-dir={{ certbot_log_dir}}

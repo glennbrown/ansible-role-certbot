@@ -1,0 +1,34 @@
+---
+- name: Pre-create certbot virtualenv directory
+  file:
+    path: "{{ certbot_dir }}"
+    state: directory
+    owner: "{{ ansible_env.SUDO_USER }}"
+    group: "{{ certbot_group }}"
+    mode: 0755
+  become: true
+
+- name: Install pip dependencies for MacOS
+  homebrew:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - python3
+    - virtualenv
+
+- name: Install certbot via pip
+  pip:
+    name:
+      - certbot
+      - certbot-dns-cloudflare
+    virtualenv: "{{ certbot_dir }}"
+    virtualenv_python: "{{ certbot_python3_binary }}"
+    state: present
+
+- name: Symlink certbot into place.
+  file:
+    src: "{{ certbot_dir }}/bin/certbot"
+    dest: /usr/local/bin/certbot
+    state: link
+  become: true
+  ignore_errors: "{{ ansible_check_mode }}"

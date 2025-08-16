@@ -3,19 +3,14 @@
  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <!-- A unique identifier for this job -->
     <key>Label</key>
     <string>org.eff.certbot.renew</string>
-
-    <!-- The command and its arguments -->
     <key>ProgramArguments</key>
     <array>
         <string>{{ certbot_script }}</string>
         <string>renew</string>
         <string>{{ certbot_auto_renew_options }}</string>
     </array>
-
-    <!-- When to run: 3:30 AM every day -->
     <key>StartCalendarInterval</key>
     <dict>
         <key>Hour</key>
@@ -23,15 +18,11 @@
         <key>Minute</key>
         <integer>{{ certbot_auto_renew_minute }}</integer>
     </dict>
-
-    <!-- Do not keep the job running continuously -->
     <key>RunAtLoad</key>
     <false/>
-
-    <!-- Send output to log files (optional) -->
     <key>StandardOutPath</key>
-    <string>/tmp/certbot-renew.out</string>
+    <string>/tmp/org.eff.certbot.renew.stdout</string>
     <key>StandardErrorPath</key>
-    <string>/tmp/certbot-renew.err</string>
+    <string>/tmp/org.eff.certbot.renew.stderr</string>
 </dict>
 </plist>
