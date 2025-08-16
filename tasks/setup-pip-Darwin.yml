@@ -3,7 +3,7 @@
   file:
     path: "{{ certbot_dir }}"
     state: directory
-    owner: "{{ ansible_env.SUDO_USER }}"
+    owner: "{{ ansible_user_id }}"
     group: "{{ certbot_group }}"
     mode: 0755
   become: true
