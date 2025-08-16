@@ -36,5 +36,5 @@
 
 - name: Generate new certificate if one doesn't exist.
   command:
-    argv: "{{ certbot_create_command }}"
+    argv: "{{ certbot_create_command | reject('equalto', omit) | list }}"
   when: not letsencrypt_cert.stat.exists
