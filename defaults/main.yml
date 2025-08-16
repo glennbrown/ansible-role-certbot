@@ -23,19 +23,25 @@ cerbot_certs: []
 #     - example3.com
 
 #Certbot defaults
-certbot_create_command: >-
-  {{ certbot_script }} certonly
-  {{ '--hsts' if certbot_hsts else '' }}
-  {{ '--test-cert' if certbot_testmode else '' }}
-  --dns-cloudflare --dns-cloudflare-credentials '{{ certbot_config_dir }}/cloudflare.ini' --dns-cloudflare-propagation-seconds 60
-  --noninteractive --agree-tos
-  --email {{ cert_item.email | default(certbot_admin_email) }}
-  -d {{ cert_item.domains | join(',') }}
-  {{ '--pre-hook {{ certbot_config_dir }}/renewal-hooks/pre/stop_services'
-    if certbot_create_stop_services else '' }}
-  {{ '--post-hook {{ certbot_config_dir }}/renewal-hooks/post/start_services'
-    if certbot_create_stop_services else '' }}
-
+certbot_create_command:
+  - "{{ certbot_script }}"
+  - certonly
+  - "{{ '--hsts' if certbot_hsts else omit }}"
+  - "{{ '--test-cert' if certbot_testmode else omit }}"
+  - --dns-cloudflare
+  - "--dns-cloudflare-credentials={{ certbot_config_dir }}/cloudflare.ini"
+  - --dns-cloudflare-propagation-seconds
+  - "60"
+  - --noninteractive
+  - --agree-tos
+  - "--email={{ cert_item.email | default(certbot_admin_email) }}"
+  - "-d"
+  - "{{ cert_item.domains | join(',') }}"
+  - "{{ '--pre-hook=' ~ certbot_config_dir ~ '/renewal-hooks/pre/stop_services'
+       if certbot_create_stop_services else omit }}"
+  - "{{ '--post-hook=' ~ certbot_config_dir ~ '/renewal-hooks/post/start_services'
+       if certbot_create_stop_services else omit }}"
+       
 certbot_create_stop_services:
   - nginx
   # - apache
