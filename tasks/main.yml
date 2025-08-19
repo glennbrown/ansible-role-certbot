@@ -15,7 +15,7 @@
     path: "{{ certbot_config_dir }}/{{ item }}"
     state: directory
     group: "{{ certbot_group }}"
-    mode: 755
+    mode: 0755
   loop:
   - live
   - archive
@@ -51,7 +51,7 @@
     src: cloudflare.ini.j2
     dest: "{{ certbot_config_dir }}/cloudflare.ini"
     group: "{{ certbot_group }}"
-    mode: 600
+    mode: 0600
 
 - include_tasks: create-cert.yml
   loop: "{{ certbot_certs }}"

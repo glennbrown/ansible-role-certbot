@@ -5,7 +5,7 @@
     state: directory
     owner: "{{ ansible_user_id }}"
     group: "{{ certbot_group }}"
-    mode: 755
+    mode: 0755
   become: true
 
 - name: Install pip dependencies for MacOS
