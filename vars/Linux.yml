@@ -1,0 +1,11 @@
+---
+certbot_python3_binary: '/usr/bin/python3'
+certbot_group: root
+certbot_config_dir: /etc/letsencrypt
+certbot_work_dir: /var/lib/letsencrypt
+certbot_log_dir: /var/log/letsencrypt
+
+# Installing from Debian, Ubuntu or Fedora packages
+certbot_packages:
+  - certbot
+  - python3-certbot-dns-cloudflare

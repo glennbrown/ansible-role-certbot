@@ -1,14 +1,9 @@
 ---
 - name: Load os-specific variables
-  include_vars: "{{ ansible_os_family }}.yml"
+  include_vars: "{{ ansible_system }}.yml"
 
-- name: Install certbot using snap
-  import_tasks: install-with-snap.yml
-  when: certbot_install_method == 'snap'
-
-- name: Install certbot using pip
-  import_tasks: install-with-pip.yml
-  when: certbot_install_method == 'pip'
+- name: Install certbot
+  import_tasks: "install-with-{{ certbot_install_method }}.yml"
 
 - name: Create certbot folders
   file:
@@ -20,8 +15,12 @@
   - live
   - archive
 
-- name: Set Posix ACL for certbot on Linux
-  block:
+- name: Ensure acl package is installed
+  package:
+    name: acl
+    state: present
+
+- block:
   - name: Set default ACL for live and archive folders
     acl:
       path: "{{ certbot_config_dir }}/{{ item }}"
@@ -44,7 +43,6 @@
     loop:
     - live
     - archive
-  when: ansible_os_family == 'Debian'
 
 - name: Copy certbot cloudflare credential config
   template:
@@ -60,14 +58,13 @@
   loop_control:
     loop_var: cert_item
 
-# Snap package uses sytemd timers by default for renewal.
+# Snap, deb and rpm packages use sytemd timers by default for renewal.
 # MacOS does have cron but launchd is the "proper" way to do it.
-# TODO: switch to systemd timers for pip installs
 - import_tasks: renew-cron.yml
   when:
   - certbot_auto_renew
   - certbot_install_method == 'pip'
-  - ansible_os_family == 'Debian'
+  - ansible_os_family != 'Darwin'
 
 - import_tasks: renew-launchd.yml
   when:

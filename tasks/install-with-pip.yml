@@ -1,10 +1,10 @@
 ---
 
-- import_tasks: setup-pip-Debian.yml
-  when: ansible_os_family == 'Debian'
+- import_tasks: setup-pip-Linux.yml
+  when: ansible_system == 'Linux'
 
 - import_tasks: setup-pip-Darwin.yml
-  when: ansible_os_family == 'Darwin'
+  when: ansible_system == 'Darwin'
 
 - name: Set Certbot script variable.
   set_fact:

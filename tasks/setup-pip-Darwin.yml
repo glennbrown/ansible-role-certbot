@@ -1,4 +1,5 @@
 ---
+# MacOS running things as root is not recommended, pre-create with the right user account/group
 - name: Pre-create certbot virtualenv directory
   file:
     path: "{{ certbot_dir }}"

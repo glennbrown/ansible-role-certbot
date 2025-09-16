@@ -5,19 +5,14 @@ Installs certbot via either pip or snap and uses Cloudflare DNS Challenge for wi
 ## Requirements
 
 - Cloudflare DNS Zone
-- Cloudflare API Token (preferred) or Cloudflare Global API Key [Certbot Cloudflare DNS Docs](https://certbot-dns-cloudflare.readthedocs.io/en/stable/)
+- Cloudflare API Token [Certbot Cloudflare DNS Docs](https://certbot-dns-cloudflare.readthedocs.io/en/stable/)
 - Wildcard domain setup (for wildcard certs) [*.domain.com or *.subdomain.domain.com]
 
 ## Role Variables
 
 ***Define these variables in group_vars or host_vars***
 
-If you are using Global API Key
-
-    certbot_cloudflare_email: "cloudflare@example.com"
-    certbot_cloudflare_api_key: ''
-
-If you are using API token which currently only works with Snap version
+Set API for token for Cloudflare
 
     certbot_cloudflare_api_token: ''
 
@@ -25,17 +20,19 @@ If you are using API token which currently only works with Snap version
 
 Certificates to generate which can include wildcards or not
 
-    certbot_certs:
-      - email: {{certbot_cloudflare_email}}
-        domains:
-          - example.com
-          - *.example.com
-      - email: {{certbot_cloudflare_email}}
-        domains:
-          - example2.com
-          - *.example2.com
-      
-Method of how to install certbot, defaults to snap.
+```yaml
+certbot_certs:
+  - email: {{certbot_cloudflare_email}}
+    domains:
+      - example.com
+      - *.example.com
+  - email: {{certbot_cloudflare_email}}
+    domains:
+      - example2.com
+      - *.example2.com
+```
+
+Method of how to install certbot, defaults to snap. Valid options are snap, package or pip
 
     certbot_install_method: pip
 
@@ -49,18 +46,26 @@ Use Let's Encrypt staging server, defaults to no.
 
 The create command which instructs the role to use DNS-01 Challenge. This is defined in the role defaults should not needed to be changed.
 
-    certbot_create_command: >-
-      {{ certbot_script }} certonly
-      {{ '--hsts' if certbot_hsts else '' }}
-      {{ '--test-cert' if certbot_testmode else '' }}
-      --dns-cloudflare --dns-cloudflare-credentials /etc/letsencrypt/cloudflare.ini     --dns-cloudflare-propagation-seconds 60
-      --noninteractive --agree-tos
-      --email {{ cert_item.email | default(certbot_admin_email) }}
-      -d {{ cert_item.domains | join(',') }}
-      {{ '--pre-hook /etc/letsencrypt/renewal-hooks/pre/stop_services'
-        if certbot_create_stop_services else '' }}
-      {{ '--post-hook /etc/letsencrypt/renewal-hooks/post/start_services'
-        if certbot_create_stop_services else '' }}
+```yaml
+certbot_create_command:
+  - "{{ certbot_script }}"
+  - certonly
+  - "{{ '--hsts' if certbot_hsts else omit }}"
+  - "{{ '--test-cert' if certbot_testmode else omit }}"
+  - --dns-cloudflare
+  - "--dns-cloudflare-credentials={{ certbot_config_dir }}/cloudflare.ini"
+  - --dns-cloudflare-propagation-seconds
+  - "60"
+  - --noninteractive
+  - --agree-tos
+  - "--email={{ cert_item.email | default(certbot_admin_email) }}"
+  - "-d"
+  - "{{ cert_item.domains | join(',') }}"
+  - "{{ '--pre-hook=' ~ certbot_config_dir ~ '/renewal-hooks/pre/stop_services'
+       if certbot_create_stop_services else omit }}"
+  - "{{ '--post-hook=' ~ certbot_config_dir ~ '/renewal-hooks/post/start_services'
+       if certbot_create_stop_services else omit }}"
+```
 
 ### Author Information
 

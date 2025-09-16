@@ -1,0 +1,26 @@
+---
+- block:
+  - name: Install packages on Linux systems
+    ansible.builtin.package:
+      name: "{{ item }}"
+      state: present
+    loop: "{{ certbot_packages }}"
+  
+  - name: Set Certbot script variable.
+    ansible.builtin.set_fact:
+      certbot_script: '/usr/bin/certbot'
+  when: 
+    - ansible_system == 'Linux'
+
+- block:
+  - name: Install packages on MacOS
+    community.general.homebrew:
+      name: "{{ item }}"
+      state: present
+    loop: "{{ certbot_packages }}"
+
+  - name: Set Certbot script variable.
+    ansible.builtin.set_fact:
+      certbot_script: '/opt/homebrew/bin/certbot'
+  when:
+    - ansible_system == 'Darwin'
