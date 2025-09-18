@@ -19,6 +19,7 @@
   package:
     name: acl
     state: present
+  when: ansible_system == 'Linux'
 
 - block:
   - name: Set default ACL for live and archive folders
@@ -43,6 +44,7 @@
     loop:
     - live
     - archive
+  when: ansible_system == 'Linux'
 
 - name: Copy certbot cloudflare credential config
   template:
