@@ -48,7 +48,7 @@ certbot_create_stop_services:
   # - varnish
 
 # Available options: 'snap' or 'pip'
-certbot_install_method: 'snap'
+certbot_install_method: ''
 
 # Where to put Certbot when installing from pip.
 certbot_dir: /opt/certbot
