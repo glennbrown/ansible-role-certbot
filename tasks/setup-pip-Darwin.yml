@@ -26,18 +26,6 @@
     virtualenv_python: "{{ certbot_python3_binary }}"
     state: present
 
-- name: Ensure configuration directory exists
-  file:
-    path: "{{ certbot_cli_conf_dir }}"
-    state: directory
-    mode: 0755
-
-- name: Copy certbot cli.ini for MacOS
-  template:
-    src: cli.ini.j2
-    dest: "{{ certbot_cli_conf_dir }}/cli.ini"
-    mode: 0644
-
 - name: Symlink certbot into place.
   file:
     src: "{{ certbot_dir }}/bin/certbot"

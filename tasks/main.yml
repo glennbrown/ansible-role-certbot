@@ -3,7 +3,21 @@
   include_vars: "{{ ansible_system }}.yml"
 
 - name: Install certbot
-  import_tasks: "install-with-{{ certbot_install_method }}.yml"
+  ansible.builtin.include_tasks: "install-with-{{ certbot_install_method }}.yml"
+
+- name: Ensure configuration directory exists for MacOS
+  file:
+    path: "{{ certbot_cli_conf_dir }}"
+    state: directory
+    mode: 0755
+  when: ansible_os_family == 'Darwin'
+
+- name: Copy certbot cli.ini for MacOS
+  template:
+    src: cli.ini.j2
+    dest: "{{ certbot_cli_conf_dir }}/cli.ini"
+    mode: 0644
+  when: ansible_os_family == 'Darwin'
 
 - name: Create certbot folders
   file:
