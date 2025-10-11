@@ -2,12 +2,20 @@
 {{ ansible_managed | comment }}
 
 {% for item in certbot_create_stop_services %}
-echo "starting service {{ item }}"
-{% if ansible_service_mgr == 'systemd' %}
-systemctl start {{ item }}
-{% elif ansible_service_mgr == 'launchd' %}
-brew services start {{ item }}
-{% else %}
-service {{ item }} start
+echo "starting service {{ item.name }}"
+{% if item.service == 'systemd' %}
+systemctl start {{ item.name }}
+{% elif item.service == 'brew' %}
+brew services start {{ item.name }}
+{% elif item.service == 'launchd' %}
+launchctl load -w {{ item.name }}
+{% elif item.service == 'openrc' %}
+rc-service {{ item.name }} start
+{% elif item.service == 'sysv' %}
+service {{ item.name }} start
+{% elif item.service == 'podman' %}
+podman start {{ item.name }}
+{% elif item.service == 'docker' %}
+docker start {{ item.name }}
 {% endif %}
 {% endfor %}

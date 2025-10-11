@@ -42,10 +42,13 @@ certbot_create_command:
   - "{{ '--post-hook=' ~ certbot_config_dir ~ '/renewal-hooks/post/start_services'
        if certbot_create_stop_services else omit }}"
        
-certbot_create_stop_services:
-  - nginx
-  # - apache
-  # - varnish
+certbot_create_stop_services: []
+  # - name: nginx
+  #   service: systemd
+  # - name: apache
+  #   service: sysv
+  # - name: varnish
+  #   service: docker
 
 # Available options: 'snap' or 'pip'
 certbot_install_method: ''
