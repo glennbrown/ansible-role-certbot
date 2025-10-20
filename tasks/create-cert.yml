@@ -21,8 +21,7 @@
     group: "{{ certbot_group }}"
     mode: 0755
   when:
-    - certbot_create_stop_services is defined
-    - certbot_create_stop_services
+    - certbot_create_stop_services is defined and 'certbot_stop_services | length > 0'
 
 - name: Create post hook to start services.
   template:
@@ -31,8 +30,7 @@
     mode: 0755
     group: "{{ certbot_group }}"
   when:
-    - certbot_create_stop_services is defined
-    - certbot_create_stop_services
+    - certbot_create_stop_services is defined and 'certbot_stop_services | length > 0'
 
 - name: Generate new certificate if one doesn't exist.
   command:
